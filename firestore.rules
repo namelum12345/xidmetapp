@@ -1,0 +1,362 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    function userDoc(uid) {
+      return get(/databases/$(database)/documents/users/$(uid)).data;
+    }
+
+    function isStaff() {
+      return signedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && userDoc(request.auth.uid).role in ['admin', 'superadmin', 'super_admin'];
+    }
+
+    function userRole() {
+      return signedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        ? userDoc(request.auth.uid).role
+        : '';
+    }
+
+    function isWorkerRole() {
+      return userRole() == 'worker';
+    }
+
+    function jobExists(jobId) {
+      return exists(/databases/$(database)/documents/jobs/$(jobId));
+    }
+
+    function jobData(jobId) {
+      return get(/databases/$(database)/documents/jobs/$(jobId)).data;
+    }
+
+    /// Söhbət üzvləri: `participantIds` varsa o; yoxsa `userId` + `workerId` (köhnə/səhv yazılmış sənədlər üçün).
+    function chatMemberUids(data) {
+      return data.keys().hasAny(['participantIds'])
+        && data.participantIds is list
+        && data.participantIds.size() > 0
+        ? data.participantIds
+        : (
+            data.keys().hasAll(['userId', 'workerId'])
+            && data.userId is string
+            && data.workerId is string
+            ? [data.userId, data.workerId]
+            : []
+          );
+    }
+
+    function chatParticipantIds(chatId) {
+      return chatMemberUids(
+        get(/databases/$(database)/documents/chats/$(chatId)).data
+      );
+    }
+
+    function isSuperAdmin() {
+      return signedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && userDoc(request.auth.uid).role == 'superadmin';
+    }
+
+    /// Marketplace istifadəçisi öz profilində yalnız bu sahələri dəyişə bilər.
+    function userSelfPatchOk() {
+      return request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['name', 'surname', 'phoneKey', 'phone', 'location', 'fcmToken', 'photoUrl']);
+    }
+
+    function userImmutableOk() {
+      return request.resource.data.role == resource.data.role
+        && request.resource.data.email == resource.data.email
+        && request.resource.data.createdAt == resource.data.createdAt;
+    }
+
+    /// İcraçı öz worker sənədində yalnız bu sahələri dəyişə bilər.
+    function workerSelfPatchOk() {
+      return request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['skills', 'isAvailable', 'displayName', 'bio', 'availability']);
+    }
+
+    function workerPrevRatingCount() {
+      return 'ratingCount' in resource.data && resource.data.ratingCount is int
+        ? resource.data.ratingCount
+        : 0;
+    }
+
+    /// İş tamamlandıqda elan sahibi reytinq yazır (icraçı özünə yox).
+    function workerRatingPatchOnly() {
+      return request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['rating', 'ratingCount'])
+        && request.resource.data.ratingCount is int
+        && request.resource.data.ratingCount == workerPrevRatingCount() + 1
+        && (request.resource.data.rating is int
+          || request.resource.data.rating is float)
+        && request.resource.data.rating >= 0
+        && request.resource.data.rating <= 5;
+    }
+
+    match /users/{uid} {
+      allow read: if signedIn();
+      allow create: if signedIn()
+        && request.auth.uid == uid
+        && request.resource.data.email == request.auth.token.email
+        && request.resource.data.role in ['user', 'worker']
+        && request.resource.data.id == uid;
+      allow update: if (
+          isSuperAdmin()
+          && (
+            // superadmin başqa istifadəçini superadmin edə bilməz
+            (resource.data.role in ['superadmin', 'super_admin'])
+            || request.resource.data.role != 'superadmin'
+          )
+        )
+        || (isOwner(uid) && userSelfPatchOk() && userImmutableOk())
+        || (
+          // Admin heç vaxt role və blok kimi kritik sahələri dəyişə bilməz.
+          isStaff()
+          && !isSuperAdmin()
+          && request.resource.data.diff(resource.data).affectedKeys()
+              .hasOnly(['name', 'surname', 'phoneKey', 'phone', 'location', 'fcmToken', 'photoUrl'])
+        );
+      allow delete: if isStaff();
+
+      match /favorite_workers/{workerId} {
+        allow read, create, update, delete: if signedIn() && request.auth.uid == uid;
+      }
+
+      match /in_app_notifications/{nid} {
+        allow read: if signedIn() && request.auth.uid == uid;
+        allow create: if signedIn()
+          && request.auth.uid == request.resource.data.fromUid
+          && request.auth.uid != uid
+          && request.resource.data.keys()
+              .hasOnly(['type', 'fromUid', 'jobId', 'title', 'body', 'createdAt', 'read'])
+          && request.resource.data.type in ['job_offer', 'chat_message']
+          && request.resource.data.read == false;
+        allow update: if signedIn()
+          && request.auth.uid == uid
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']);
+        allow delete: if signedIn() && request.auth.uid == uid;
+      }
+    }
+
+    match /workers/{workerId} {
+      allow read: if signedIn();
+      allow create: if signedIn()
+        && request.auth.uid == workerId
+        && request.resource.data.userId == workerId;
+      allow update: if isStaff()
+        || (isOwner(workerId)
+          && workerSelfPatchOk()
+          && request.resource.data.userId == resource.data.userId)
+        || (signedIn()
+          && request.auth.uid != workerId
+          && workerRatingPatchOnly()
+          && request.resource.data.userId == resource.data.userId);
+      allow delete: if isStaff();
+
+      match /reviews/{reviewId} {
+        allow read: if signedIn();
+        /// Elan tamamlandıqdan sonra yalnız elan sahibi bir rəy yaradır (reviewId == jobId).
+        allow create: if signedIn()
+          && !exists(/databases/$(database)/documents/workers/$(workerId)/reviews/$(reviewId))
+          && jobExists(reviewId)
+          && jobData(reviewId).createdBy == request.auth.uid
+          && jobData(reviewId).selectedWorkerId == workerId
+          && jobData(reviewId).status == 'completed'
+          && request.resource.data.keys()
+              .hasOnly(['jobId', 'reviewerName', 'rating', 'comment', 'jobTitle', 'createdAt'])
+          && request.resource.data.jobId == reviewId
+          && request.resource.data.rating is int
+          && request.resource.data.rating >= 1
+          && request.resource.data.rating <= 5
+          && request.resource.data.comment is string
+          && request.resource.data.comment.size() <= 2000
+          && request.resource.data.reviewerName is string
+          && request.resource.data.reviewerName.size() <= 200
+          && request.resource.data.jobTitle is string
+          && request.resource.data.jobTitle.size() <= 500;
+        allow update, delete: if false;
+      }
+    }
+
+    /// Telefon → e-poçt (şifrə ilə giriş üçün oxuma autentifikasiyadan əvvəl lazımdır).
+    match /login_aliases/{phoneKey} {
+      allow get: if true;
+      allow list: if false;
+      allow create: if signedIn()
+        && request.resource.data.keys().hasOnly(['email'])
+        && request.resource.data.email == request.auth.token.email;
+      allow update: if false;
+      allow delete: if isStaff()
+        || (signedIn() && resource.data.email == request.auth.token.email);
+    }
+
+    match /complaints/{id} {
+      allow read: if isStaff();
+      allow create: if signedIn();
+      allow update: if isStaff();
+      allow delete: if isStaff();
+    }
+
+    match /logs/{id} {
+      allow read: if isStaff();
+      allow create: if isStaff();
+      allow update, delete: if false;
+    }
+
+    match /notification_queue/{id} {
+      allow read: if isStaff();
+      allow create: if isStaff();
+      allow update, delete: if false;
+    }
+
+    match /jobs/{jobId} {
+      allow read: if signedIn() || isStaff();
+      allow create: if signedIn()
+        && request.resource.data.createdBy == request.auth.uid;
+      allow update: if signedIn()
+        && (
+          (resource.data.createdBy == request.auth.uid
+            && request.resource.data.createdBy == resource.data.createdBy)
+          || isStaff()
+        );
+      allow delete: if isStaff();
+
+      match /applications/{appId} {
+        /// appId == workerUid (sənəd identifikatoru).
+        allow read: if signedIn()
+          && (
+            isStaff()
+            || (jobExists(jobId) && jobData(jobId).createdBy == request.auth.uid)
+            || appId == request.auth.uid
+          );
+
+        allow create: if signedIn()
+          && isWorkerRole()
+          && request.auth.uid == appId
+          && jobExists(jobId)
+          && jobData(jobId).createdBy is string
+          && jobData(jobId).createdBy != request.auth.uid
+          && request.resource.data.workerId == request.auth.uid
+          && request.resource.data.keys()
+              .hasOnly(['workerId', 'offerAmount', 'createdAt', 'status'])
+          && request.resource.data.status == 'pending';
+
+        allow update: if isStaff()
+          || (
+            signedIn()
+            && jobExists(jobId)
+            && jobData(jobId).createdBy == request.auth.uid
+          )
+          || (
+            signedIn()
+            && appId == request.auth.uid
+            && isWorkerRole()
+            && resource.data.workerId == request.auth.uid
+            && request.resource.data.workerId == resource.data.workerId
+            && request.resource.data.diff(resource.data).affectedKeys()
+                .hasOnly(['offerAmount', 'createdAt', 'status'])
+          );
+
+        allow delete: if isStaff();
+      }
+    }
+
+    match /chats/{chatId} {
+      allow read: if signedIn()
+        && (
+          isStaff()
+          || request.auth.uid in chatMemberUids(resource.data)
+        );
+
+      /// Yalnız elan sahibi (userId) və ya icraçı (workerId) yarada bilər; hər ikisi participantIds-də olmalıdır.
+      allow create: if signedIn()
+        && (
+          isStaff()
+          || (
+            (
+              request.auth.uid == request.resource.data.userId
+              || request.auth.uid == request.resource.data.workerId
+            )
+            && request.auth.uid in request.resource.data.participantIds
+            && request.resource.data.participantIds is list
+            && request.resource.data.participantIds.size() == 2
+            && request.resource.data.participantIds.hasAll([
+              request.resource.data.userId,
+              request.resource.data.workerId,
+            ])
+          )
+        );
+
+      allow update: if signedIn()
+        && (
+          isStaff()
+          || (
+            request.auth.uid in chatMemberUids(resource.data)
+            && request.resource.data.userId == resource.data.userId
+            && request.resource.data.workerId == resource.data.workerId
+            && request.resource.data.participantIds == resource.data.participantIds
+            && request.resource.data.jobId == resource.data.jobId
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+              'lastMessageAt',
+              'lastMessageText',
+              'lastMessage',
+              'updatedAt',
+              'unreadOwner',
+              'unreadWorker',
+            ])
+          )
+        );
+
+      allow delete: if isStaff();
+
+      match /messages/{msgId} {
+        allow read: if signedIn()
+          && (
+            isStaff()
+            || (
+              exists(/databases/$(database)/documents/chats/$(chatId))
+              && request.auth.uid in chatParticipantIds(chatId)
+            )
+          );
+
+        allow create: if signedIn()
+          && (
+            isStaff()
+            || (
+              request.auth.uid == request.resource.data.senderId
+              && exists(/databases/$(database)/documents/chats/$(chatId))
+              && request.auth.uid in chatParticipantIds(chatId)
+              && request.resource.data.keys()
+                  .hasOnly(['senderId', 'text', 'timestamp', 'readBy'])
+            )
+          );
+
+        /// Oxunan kimi qarşı tərəfin UID-i readBy massivinə əlavə olunur (yalnız bu sahə dəyişir).
+        allow update: if signedIn()
+          && (
+            isStaff()
+            || (
+              exists(/databases/$(database)/documents/chats/$(chatId))
+              && request.auth.uid in chatParticipantIds(chatId)
+              && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['readBy'])
+              && request.resource.data.senderId == resource.data.senderId
+              && request.resource.data.text == resource.data.text
+              && request.resource.data.timestamp == resource.data.timestamp
+              && request.resource.data.readBy.size() >= resource.data.readBy.size()
+            )
+          );
+
+        allow delete: if isStaff();
+      }
+    }
+  }
+}

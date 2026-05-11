@@ -1,0 +1,13 @@
+{
+  "name": "qonsudan-xidmet-dev",
+  "private": true,
+  "scripts": {
+    "dev:web": "bash scripts/dev-web.sh",
+    "emulators": "CI=true npx firebase emulators:start --only auth,firestore",
+    "emulators:all": "CI=true npx firebase emulators:start --only auth,firestore,functions,storage",
+    "seed:emulator": "bash scripts/seed-emulator.sh"
+  },
+  "devDependencies": {
+    "firebase-tools": "^14.22.0"
+  }
+}
