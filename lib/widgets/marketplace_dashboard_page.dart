@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import '../router/app_router.dart' show appRouter;
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../models/job_category.dart';
@@ -72,12 +72,12 @@ class _MarketplaceDashboardPageState extends State<MarketplaceDashboardPage> {
   }
 
   Future<void> _openCreateJob() async {
-    final created = await context.push<bool>(AppRoutes.createJob);
+    final created = await appRouter.push<bool>(AppRoutes.createJob);
     if (created == true && mounted) setState(() {});
   }
 
   void _openJob(JobListing job) {
-    context.push(
+    appRouter.push(
       AppRoutes.jobDetail(job.id),
       extra: widget.viewerRole,
     );

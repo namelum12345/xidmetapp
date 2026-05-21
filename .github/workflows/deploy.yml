@@ -1,0 +1,38 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Deploy to xidmet.ecoguard.online
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy backend & restart service
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          script: |
+            set -e
+            cd ${{ secrets.DEPLOY_PATH }}
+
+            echo "--- Git pull ---"
+            git pull origin main
+
+            echo "--- Python asılılıqları ---"
+            cd xidmet_v2/backend
+            source venv/bin/activate
+            pip install -r requirements.txt -q
+
+            echo "--- Servis yenidən başladılır ---"
+            systemctl restart xidmet
+
+            echo "--- Servis statusu ---"
+            systemctl is-active xidmet && echo "Servis işləyir" || echo "Servis başlamadı!"
+
+            echo "--- Deploy uğurla tamamlandı ---"

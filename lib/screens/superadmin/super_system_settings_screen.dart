@@ -1,6 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 import '../../services/super_admin_service.dart';
+import '../../shells/super_admin_shell.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/app_card.dart';
@@ -9,6 +11,7 @@ import '../../widgets/outlined_auth_button.dart';
 import '../../widgets/setting_nav_tile.dart';
 import 'super_admin_named_screens.dart';
 
+/// Push naviqasiyalı parametr sətri.
 class _SuperSettingPushTile extends StatelessWidget {
   const _SuperSettingPushTile({
     required this.icon,
@@ -32,9 +35,7 @@ class _SuperSettingPushTile extends StatelessWidget {
           borderRadius: BorderRadius.circular(AppTheme.radiusLg),
           onTap: () {
             Navigator.of(context).push<void>(
-              MaterialPageRoute<void>(
-                builder: (_) => screen,
-              ),
+              MaterialPageRoute<void>(builder: (_) => screen),
             );
           },
           child: SettingTileVisual(
@@ -48,6 +49,48 @@ class _SuperSettingPushTile extends StatelessWidget {
   }
 }
 
+class _SectionHeader extends StatelessWidget {
+  const _SectionHeader({required this.title, this.subtitle});
+
+  final String title;
+  final String? subtitle;
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    return Padding(
+      padding: const EdgeInsets.only(top: 18, bottom: 10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          if (subtitle != null) ...[
+            const SizedBox(height: 2),
+            Text(
+              subtitle!,
+              style: textTheme.bodySmall?.copyWith(
+                color: AppColors.textSecondary,
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+/// Superadmin → "Parametrlər" tabı.
+/// Bölmələr:
+///   1) Adminlər — icazə şablonu, audit, push, qlobal blok, admin siyahısına keçid.
+///   2) Şikayət və moderasiya.
+///   3) Maliyyə (komissiya).
+///   4) Sistem — radius, kateqoriyalar, bacarıqlar.
+///   5) Nüsxələmə — backup/restore.
 class SuperSystemSettingsScreen extends StatelessWidget {
   const SuperSystemSettingsScreen({super.key});
 
@@ -71,58 +114,71 @@ class SuperSystemSettingsScreen extends StatelessWidget {
                   fontWeight: FontWeight.w900,
                 ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 4),
               Text(
-                'Sistem və əməliyyatlar',
+                'Sistem və admin idarəetmə vasitələri',
                 style: textTheme.bodyLarge?.copyWith(
                   color: AppColors.textSecondary,
                 ),
               ),
-              const SizedBox(height: 20),
+              const _SectionHeader(
+                title: 'Adminlər',
+                subtitle: 'Admin hesablarına aid əməliyyatlar',
+              ),
+              _AdminQuickStatsCard(
+                onOpenAdmins: () => SuperAdminShell.goToTab(
+                  context,
+                  SuperAdminShell.tabAdmins,
+                ),
+              ),
+              const SizedBox(height: 10),
+              const _SuperSettingPushTile(
+                icon: Icons.vpn_key_outlined,
+                title: 'Defolt icazə şablonu',
+                subtitle: 'Yeni adminlər üçün icazələr',
+                screen: PermissionsScreen(),
+              ),
+              const _SuperSettingPushTile(
+                icon: Icons.history_rounded,
+                title: 'Audit log',
+                subtitle: 'Kim hansı əməliyyatı icra etdi',
+                screen: LogsScreen(),
+              ),
+              const _SuperSettingPushTile(
+                icon: Icons.campaign_outlined,
+                title: 'Push bildiriş',
+                subtitle: 'Hamı və ya yalnız icraçılar üçün',
+                screen: NotificationScreen(),
+              ),
+              const _SuperSettingPushTile(
+                icon: Icons.gavel_rounded,
+                title: 'Qlobal blok',
+                subtitle: 'İstifadəçi / icraçı ID üzrə',
+                screen: BanManagementScreen(),
+              ),
+              const _SectionHeader(
+                title: 'Şikayət və moderasiya',
+              ),
               const _SuperSettingPushTile(
                 icon: Icons.flag_outlined,
                 title: 'Şikayətlər',
                 subtitle: 'İstifadəçi, icraçı, elan',
                 screen: ReportsScreen(),
               ),
+              const _SectionHeader(
+                title: 'Maliyyə',
+                subtitle: 'Komissiya analitikaya təsir edir',
+              ),
               const _SuperSettingPushTile(
                 icon: Icons.account_balance_wallet_outlined,
                 title: 'Monetizasiya',
-                subtitle: 'Komissiya və premium',
+                subtitle: 'Komissiya faizi və premium',
                 screen: MonetizationScreen(),
               ),
-              const _SuperSettingPushTile(
-                icon: Icons.vpn_key_outlined,
-                title: 'İcazə şablonu',
-                subtitle: 'Defolt icazələr',
-                screen: PermissionsScreen(),
+              const _SectionHeader(
+                title: 'Sistem',
+                subtitle: 'Marketplace tənzimləmələri',
               ),
-              const _SuperSettingPushTile(
-                icon: Icons.history_rounded,
-                title: 'Audit log',
-                subtitle: 'Kim nə etdi',
-                screen: LogsScreen(),
-              ),
-              const _SuperSettingPushTile(
-                icon: Icons.campaign_outlined,
-                title: 'Push bildiriş',
-                subtitle: 'Hamı və ya icraçılar',
-                screen: NotificationScreen(),
-              ),
-              const _SuperSettingPushTile(
-                icon: Icons.gavel_rounded,
-                title: 'Qlobal blok',
-                subtitle: 'İstifadəçi / icraçı ID',
-                screen: BanManagementScreen(),
-              ),
-              const SizedBox(height: 24),
-              Text(
-                'Sistem parametrləri',
-                style: textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-              const SizedBox(height: 12),
               AppCard(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -172,13 +228,6 @@ class SuperSystemSettingsScreen extends StatelessWidget {
                           )
                           .toList(),
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Tezliklə redaktə UI əlavə olunacaq',
-                      style: textTheme.bodySmall?.copyWith(
-                        color: AppColors.textSecondary,
-                      ),
-                    ),
                   ],
                 ),
               ),
@@ -213,18 +262,11 @@ class SuperSystemSettingsScreen extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(height: 12),
+              const _SectionHeader(title: 'Nüsxələmə'),
               AppCard(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Text(
-                      'Nüsxələmə',
-                      style: textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
                     GradientPrimaryButton(
                       label: 'Backup',
                       onPressed: () {
@@ -240,7 +282,9 @@ class SuperSystemSettingsScreen extends StatelessWidget {
                       onPressed: () {
                         SuperAdminService.instance.restoreDummy();
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Restore simulyasiyası')),
+                          const SnackBar(
+                            content: Text('Restore simulyasiyası'),
+                          ),
                         );
                       },
                     ),
@@ -251,6 +295,150 @@ class SuperSystemSettingsScreen extends StatelessWidget {
           );
         },
       ),
+    );
+  }
+}
+
+/// Adminlər bölməsi üçün xülasə kartı: cəmi/aktiv/bloklu admin sayı +
+/// "Adminlər" tabına keçid düyməsi.
+class _AdminQuickStatsCard extends StatelessWidget {
+  const _AdminQuickStatsCard({required this.onOpenAdmins});
+
+  final VoidCallback onOpenAdmins;
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+      stream: FirebaseFirestore.instance
+          .collection('users')
+          .where('role', isEqualTo: 'admin')
+          .snapshots(),
+      builder: (context, snap) {
+        final docs = snap.data?.docs ?? const [];
+        var blocked = 0;
+        for (final d in docs) {
+          final m = d.data();
+          if (m['isBlocked'] == true || m['banned'] == true) blocked++;
+        }
+        final total = docs.length;
+        final active = total - blocked;
+
+        return AppCard(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Icon(
+                      Icons.admin_panel_settings_rounded,
+                      color: AppColors.primary,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Admin hesabları',
+                          style: textTheme.titleSmall?.copyWith(
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        Text(
+                          'Yarat, blokla, sil və ya rol dəyiş',
+                          style: textTheme.bodySmall?.copyWith(
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 14),
+              Row(
+                children: [
+                  Expanded(
+                    child: _MiniStat(label: 'Cəmi', value: '$total'),
+                  ),
+                  Container(width: 1, height: 30, color: AppColors.outline),
+                  Expanded(
+                    child: _MiniStat(
+                      label: 'Aktiv',
+                      value: '$active',
+                      color: const Color(0xFF22C55E),
+                    ),
+                  ),
+                  Container(width: 1, height: 30, color: AppColors.outline),
+                  Expanded(
+                    child: _MiniStat(
+                      label: 'Bloklu',
+                      value: '$blocked',
+                      color: const Color(0xFFEF4444),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 14),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: onOpenAdmins,
+                  icon: const Icon(Icons.arrow_forward_rounded),
+                  label: const Text('Adminləri idarə et'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.primary,
+                    side: const BorderSide(color: AppColors.primary),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _MiniStat extends StatelessWidget {
+  const _MiniStat({required this.label, required this.value, this.color});
+
+  final String label;
+  final String value;
+  final Color? color;
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    return Column(
+      children: [
+        Text(
+          value,
+          style: textTheme.titleLarge?.copyWith(
+            fontWeight: FontWeight.w900,
+            color: color ?? AppColors.textPrimary,
+          ),
+        ),
+        Text(
+          label,
+          style: textTheme.labelSmall?.copyWith(
+            color: AppColors.textSecondary,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ],
     );
   }
 }

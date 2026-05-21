@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../services/super_admin_service.dart';
 import '../../theme/app_colors.dart';
@@ -51,25 +50,8 @@ class _SuperMonetizationScreenState extends State<SuperMonetizationScreen> {
           final s = SuperAdminService.instance;
 
           return ListView(
-            padding: const EdgeInsets.fromLTRB(20, 8, 20, 28),
+            padding: const EdgeInsets.fromLTRB(20, 16, 20, 28),
             children: [
-              Row(
-                children: [
-                  IconButton(
-                    onPressed: () => context.pop(),
-                    icon: const Icon(Icons.arrow_back_rounded),
-                  ),
-                  Expanded(
-                    child: Text(
-                      'Monetizasiya',
-                      style: textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.w900,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
               AppCard(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,

@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart' as geo;
-import 'package:go_router/go_router.dart';
+import '../../router/app_router.dart' show appRouter;
 
 import '../../models/user_role.dart';
 import '../../router/app_routes.dart';
@@ -96,7 +96,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (ok != true || !mounted) return;
     await AuthService.instance.signOut();
     if (!mounted) return;
-    context.go(AppRoutes.login);
+    appRouter.go(AppRoutes.login);
   }
 
   @override
@@ -129,7 +129,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   roleLabel: _roleLabel(),
                   locationLabel: locText,
                   photoUrl: profile.photoUrl,
-                  onAvatarTap: () => context.push(
+                  onAvatarTap: () => appRouter.push(
                     AppRoutes.profileEdit(_worker),
                   ),
                 ),
@@ -139,52 +139,52 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 icon: Icons.edit_outlined,
                 title: 'Hesabı redaktə et',
                 subtitle: 'Ad, soyad, telefon, şəkil',
-                onTap: () => context.push(AppRoutes.profileEdit(_worker)),
+                onTap: () => appRouter.push(AppRoutes.profileEdit(_worker)),
               ),
               ProfileMenuTile(
                 icon: Icons.lock_outline_rounded,
                 title: 'Şifrəni dəyiş',
-                onTap: () => context.push(AppRoutes.profileChangePassword(_worker)),
+                onTap: () => appRouter.push(AppRoutes.profileChangePassword(_worker)),
               ),
               ProfileMenuTile(
                 icon: Icons.map_outlined,
                 title: 'Məkanımı dəyiş',
                 subtitle: 'GPS və ya xəritədə seçim',
-                onTap: () => context.push(AppRoutes.profileEdit(_worker)),
+                onTap: () => appRouter.push(AppRoutes.profileEdit(_worker)),
               ),
               ProfileMenuTile(
                 icon: Icons.work_outline_rounded,
                 title: 'Elanlarım',
                 subtitle: _worker ? 'Seçilmiş və təklifləriniz' : 'Yaratdığınız elanlar',
-                onTap: () => context.push(AppRoutes.profileMyJobs(_worker)),
+                onTap: () => appRouter.push(AppRoutes.profileMyJobs(_worker)),
               ),
               ProfileMenuTile(
                 icon: Icons.task_alt_outlined,
                 title: 'Tamamlanan işlər',
                 subtitle: 'Bitmiş elanlar',
-                onTap: () => context.push(
+                onTap: () => appRouter.push(
                   '${AppRoutes.profileMyJobs(_worker)}?tab=completed',
                 ),
               ),
               ProfileMenuTile(
                 icon: Icons.people_outline_rounded,
                 title: 'Seçilmiş işçilər',
-                onTap: () => context.push(AppRoutes.profileFavorites(_worker)),
+                onTap: () => appRouter.push(AppRoutes.profileFavorites(_worker)),
               ),
               ProfileMenuTile(
                 icon: Icons.notifications_outlined,
                 title: 'Bildirişlər',
-                onTap: () => context.push(AppRoutes.profileNotifications(_worker)),
+                onTap: () => appRouter.push(AppRoutes.profileNotifications(_worker)),
               ),
               ProfileMenuTile(
                 icon: Icons.help_outline_rounded,
                 title: 'Dəstək / Yardım',
-                onTap: () => context.push(AppRoutes.profileSupport(_worker)),
+                onTap: () => appRouter.push(AppRoutes.profileSupport(_worker)),
               ),
               ProfileMenuTile(
                 icon: Icons.settings_outlined,
                 title: 'Parametrlər',
-                onTap: () => context.push(AppRoutes.profileSettings(_worker)),
+                onTap: () => appRouter.push(AppRoutes.profileSettings(_worker)),
               ),
               const SizedBox(height: 8),
               ProfileMenuTile(

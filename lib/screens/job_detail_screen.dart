@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:go_router/go_router.dart';
+import '../router/app_router.dart' show appRouter;
 
 import '../models/job_listing.dart';
 import '../models/user_role.dart';
@@ -63,7 +63,7 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
         offerAmount: amount,
       );
       if (!mounted) return;
-      context.push(AppRoutes.chat(threadId), extra: UserRole.worker);
+      appRouter.push(AppRoutes.chat(threadId), extra: UserRole.worker);
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -201,7 +201,7 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
             appBar: AppBar(
               leading: IconButton(
                 icon: const Icon(Icons.arrow_back_rounded),
-                onPressed: () => context.pop(),
+                onPressed: () => appRouter.pop(),
               ),
               title: const Text('Elan'),
             ),
@@ -234,7 +234,7 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
           appBar: AppBar(
             leading: IconButton(
               icon: const Icon(Icons.arrow_back_rounded),
-              onPressed: () => context.pop(),
+              onPressed: () => appRouter.pop(),
             ),
             title: Text(
               job.title,

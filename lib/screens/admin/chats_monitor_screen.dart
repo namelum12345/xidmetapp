@@ -1,8 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../models/chat_thread.dart';
+import '../../router/app_router.dart' show appRouter;
 import '../../router/app_routes.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_theme.dart';
@@ -99,9 +99,11 @@ class ChatsMonitorScreen extends StatelessWidget {
                           child: Material(
                             color: Colors.transparent,
                             child: InkWell(
-                              onTap: () => context.push(
+                              onTap: () => appRouter.push(
                                 AppRoutes.adminChat(t.id),
                               ),
+                              splashColor:
+                                  AppColors.primary.withValues(alpha: 0.12),
                               borderRadius:
                                   BorderRadius.circular(AppTheme.radiusLg),
                               child: AppCard(

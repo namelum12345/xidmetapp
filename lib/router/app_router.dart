@@ -41,6 +41,7 @@ import '../screens/superadmin/super_audit_log_screen.dart';
 import '../screens/superadmin/ban_management_screen.dart';
 import '../screens/superadmin/super_notification_screen.dart';
 import '../screens/superadmin/super_monetization_screen.dart';
+import '../screens/superadmin/super_page_scaffold.dart';
 import '../screens/superadmin/super_permissions_screen.dart';
 import '../screens/superadmin/super_reports_screen.dart';
 import '../screens/superadmin/super_system_settings_screen.dart';
@@ -126,52 +127,82 @@ final GoRouter appRouter = GoRouter(
         GoRoute(
           path: 'reports',
           parentNavigatorKey: rootNavigatorKey,
-          builder: (context, state) => const SuperReportsScreen(),
+          builder: (context, state) => const SuperPageScaffold(
+            title: 'Şikayətlər',
+            child: SuperReportsScreen(),
+          ),
         ),
         GoRoute(
           path: 'monetization',
           parentNavigatorKey: rootNavigatorKey,
-          builder: (context, state) => const SuperMonetizationScreen(),
+          builder: (context, state) => const SuperPageScaffold(
+            title: 'Monetizasiya',
+            child: SuperMonetizationScreen(),
+          ),
         ),
         GoRoute(
           path: 'permissions',
           parentNavigatorKey: rootNavigatorKey,
-          builder: (context, state) => const SuperPermissionsScreen(),
+          builder: (context, state) => const SuperPageScaffold(
+            title: 'İcazələr',
+            child: SuperPermissionsScreen(),
+          ),
         ),
         GoRoute(
           path: 'audit',
           parentNavigatorKey: rootNavigatorKey,
-          builder: (context, state) => const SuperAuditLogScreen(),
+          builder: (context, state) => const SuperPageScaffold(
+            title: 'Audit log',
+            child: SuperAuditLogScreen(),
+          ),
         ),
         GoRoute(
           path: 'ban',
           parentNavigatorKey: rootNavigatorKey,
-          builder: (context, state) => const BanManagementScreen(),
+          builder: (context, state) => const SuperPageScaffold(
+            title: 'Qlobal blok',
+            child: BanManagementScreen(),
+          ),
         ),
         GoRoute(
           path: 'notifications',
           parentNavigatorKey: rootNavigatorKey,
-          builder: (context, state) => const SuperNotificationScreen(),
+          builder: (context, state) => const SuperPageScaffold(
+            title: 'Push bildiriş',
+            child: SuperNotificationScreen(),
+          ),
         ),
         GoRoute(
           path: 'manage/users',
           parentNavigatorKey: rootNavigatorKey,
-          builder: (context, state) => const UsersManagementScreen(),
+          builder: (context, state) => const SuperPageScaffold(
+            title: 'İstifadəçilər',
+            child: UsersManagementScreen(),
+          ),
         ),
         GoRoute(
           path: 'manage/workers',
           parentNavigatorKey: rootNavigatorKey,
-          builder: (context, state) => const WorkersManagementScreen(),
+          builder: (context, state) => const SuperPageScaffold(
+            title: 'İcraçılar',
+            child: WorkersManagementScreen(),
+          ),
         ),
         GoRoute(
           path: 'manage/jobs',
           parentNavigatorKey: rootNavigatorKey,
-          builder: (context, state) => const JobsManagementScreen(),
+          builder: (context, state) => const SuperPageScaffold(
+            title: 'Elanlar',
+            child: JobsManagementScreen(),
+          ),
         ),
         GoRoute(
           path: 'manage/chats',
           parentNavigatorKey: rootNavigatorKey,
-          builder: (context, state) => const ChatsMonitorScreen(),
+          builder: (context, state) => const SuperPageScaffold(
+            title: 'Söhbətlər',
+            child: ChatsMonitorScreen(),
+          ),
         ),
       ],
     ),

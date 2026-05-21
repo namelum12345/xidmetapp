@@ -19,20 +19,23 @@ class RoleMainShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListenableBuilder(
-      listenable: ChatService.instance,
-      builder: (context, _) {
-        final unread = ChatService.instance.unreadCount(role);
-        return Scaffold(
-          backgroundColor: AppColors.background,
-          body: navigationShell,
-          bottomNavigationBar: _BottomBar(
+    // Unread badge: yalnız alt paneli yenilə. Bütün Scaffold-u ChatService ilə sıxmaq
+    // bəzi qurğularda toxunuşları pozur.
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      body: navigationShell,
+      bottomNavigationBar: ListenableBuilder(
+        listenable: ChatService.instance,
+        builder: (context, _) {
+          final unread = ChatService.instance.unreadCount(role);
+          return _BottomBar(
             navigationShell: navigationShell,
+            role: role,
             currentIndex: navigationShell.currentIndex,
             unreadMessages: unread,
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 }
@@ -40,20 +43,20 @@ class RoleMainShell extends StatelessWidget {
 class _BottomBar extends StatelessWidget {
   const _BottomBar({
     required this.navigationShell,
+    required this.role,
     required this.currentIndex,
     required this.unreadMessages,
   });
 
   final StatefulNavigationShell navigationShell;
+  final UserRole role;
   final int currentIndex;
   final int unreadMessages;
 
-  /// [StatefulShellRoute] üçün `go()` əvəzinə — tab dəyişməsi və eyni tabda kökə qayıdış düzgün işləyir.
   void _goTab(int index) {
-    navigationShell.goBranch(
-      index,
-      initialLocation: index == navigationShell.currentIndex,
-    );
+    const tabCount = 3;
+    assert(index >= 0 && index < tabCount);
+    navigationShell.goBranch(index);
   }
 
   @override
@@ -131,8 +134,12 @@ class _NavItem extends StatelessWidget {
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
+        splashColor: AppColors.primary.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(AppTheme.radiusLg),
-        child: AnimatedContainer(
+        // Geniş toxunuş zolağı — yalnız ikon üzərinə sıxmaq məcburi deyil
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 52),
+          child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           padding: const EdgeInsets.symmetric(vertical: 10),
           decoration: BoxDecoration(
@@ -192,6 +199,7 @@ class _NavItem extends StatelessWidget {
               ),
             ],
           ),
+        ),
         ),
       ),
     );

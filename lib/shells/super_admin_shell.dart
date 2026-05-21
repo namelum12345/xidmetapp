@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../router/app_router.dart' show appRouter;
 import '../router/app_routes.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_theme.dart';
@@ -26,7 +27,7 @@ class SuperNavScope extends InheritedWidget {
       navigationShell != oldWidget.navigationShell;
 }
 
-/// Superadmin — alt naviqasiya [StatefulNavigationShell.goBranch] ilə.
+/// Superadmin — alt naviqasiya: tab keçidləri üçün `goBranch` (+ məzmundan `goToTab`).
 class SuperAdminShell extends StatelessWidget {
   const SuperAdminShell({
     super.key,
@@ -70,20 +71,11 @@ class SuperAdminShell extends StatelessWidget {
 
   static void goToTab(BuildContext context, int index) {
     assert(index >= 0 && index < _paths.length);
-    final shellWidget = SuperNavScope.shellOf(context);
-    final shellState = StatefulNavigationShell.maybeOf(context);
-    if (shellWidget != null) {
-      shellWidget.goBranch(
-        index,
-        initialLocation: index == shellWidget.currentIndex,
-      );
-    } else if (shellState != null) {
-      shellState.goBranch(
-        index,
-        initialLocation: index == shellState.currentIndex,
-      );
+    final shell = SuperNavScope.shellOf(context);
+    if (shell != null) {
+      shell.goBranch(index);
     } else {
-      GoRouter.of(context).go(_paths[index]);
+      appRouter.go(_paths[index]);
     }
   }
 
@@ -116,7 +108,7 @@ class SuperAdminShell extends StatelessWidget {
                     child: Material(
                       color: Colors.transparent,
                       child: InkWell(
-                        onTap: () => goToTab(context, i),
+                        onTap: () => navigationShell.goBranch(i),
                         borderRadius:
                             BorderRadius.circular(AppTheme.radiusMd),
                         child: Padding(

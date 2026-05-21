@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart' as geo;
-import 'package:go_router/go_router.dart';
+import '../../router/app_router.dart' show appRouter;
 
 import '../../router/app_routes.dart';
 import '../../services/auth_service.dart';
@@ -98,7 +98,7 @@ class _WorkerProfileScreenState extends State<WorkerProfileScreen> {
     if (ok != true || !mounted) return;
     await AuthService.instance.signOut();
     if (!mounted) return;
-    context.go(AppRoutes.login);
+    appRouter.go(AppRoutes.login);
   }
 
   @override
@@ -300,49 +300,49 @@ class _WorkerProfileScreenState extends State<WorkerProfileScreen> {
                   WorkerMenuTile(
                     icon: Icons.edit_outlined,
                     title: 'Profili redaktə et',
-                    onTap: () => context.push(AppRoutes.profileEdit(true)),
+                    onTap: () => appRouter.push(AppRoutes.profileEdit(true)),
                   ),
                   WorkerMenuTile(
                     icon: Icons.construction_outlined,
                     title: 'Bacarıqlarım',
-                    onTap: () => context.push(AppRoutes.workerSkills),
+                    onTap: () => appRouter.push(AppRoutes.workerSkills),
                   ),
                   WorkerMenuTile(
                     icon: Icons.toggle_on_outlined,
                     title: 'Aktivlik statusu',
                     subtitle: _availabilityLabel(availability),
-                    onTap: () => context.push(AppRoutes.workerAvailability),
+                    onTap: () => appRouter.push(AppRoutes.workerAvailability),
                   ),
                   WorkerMenuTile(
                     icon: Icons.payments_outlined,
                     title: 'Qazancım',
-                    onTap: () => context.push(AppRoutes.workerEarnings),
+                    onTap: () => appRouter.push(AppRoutes.workerEarnings),
                   ),
                   WorkerMenuTile(
                     icon: Icons.task_alt_outlined,
                     title: 'Tamamlanan işlər',
-                    onTap: () => context.push(AppRoutes.profileMyJobs(true)),
+                    onTap: () => appRouter.push(AppRoutes.profileMyJobs(true)),
                   ),
                   WorkerMenuTile(
                     icon: Icons.reviews_outlined,
                     title: 'Rəylər',
-                    onTap: () => context.push(AppRoutes.workerReviews),
+                    onTap: () => appRouter.push(AppRoutes.workerReviews),
                   ),
                   WorkerMenuTile(
                     icon: Icons.notifications_active_outlined,
                     title: 'Bildirişlər',
                     subtitle: 'Yeni elanlar, mesajlar, təkliflər',
-                    onTap: () => context.push(AppRoutes.profileNotifications(true)),
+                    onTap: () => appRouter.push(AppRoutes.profileNotifications(true)),
                   ),
                   WorkerMenuTile(
                     icon: Icons.map_outlined,
                     title: 'Məkanımı dəyiş',
-                    onTap: () => context.push(AppRoutes.workerChangeLocation),
+                    onTap: () => appRouter.push(AppRoutes.workerChangeLocation),
                   ),
                   WorkerMenuTile(
                     icon: Icons.settings_outlined,
                     title: 'Parametrlər',
-                    onTap: () => context.push(AppRoutes.profileSettings(true)),
+                    onTap: () => appRouter.push(AppRoutes.profileSettings(true)),
                   ),
                   WorkerMenuTile(
                     icon: Icons.logout_rounded,

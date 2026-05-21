@@ -48,6 +48,7 @@ class ChatListItem extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           onTap: onTap,
+          splashColor: AppColors.primary.withValues(alpha: 0.12),
           borderRadius: BorderRadius.circular(AppTheme.radiusLg),
           child: AppCard(
             padding: const EdgeInsets.all(14),

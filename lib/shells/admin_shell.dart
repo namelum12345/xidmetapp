@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../router/app_router.dart' show appRouter;
 import '../router/app_routes.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_theme.dart';
@@ -27,7 +28,7 @@ class AdminNavScope extends InheritedWidget {
       navigationShell != oldWidget.navigationShell;
 }
 
-/// Admin panel — alt naviqasiya [StatefulNavigationShell.goBranch] ilə (indexed stack düzgün sinxron qalır).
+/// Admin panel — alt naviqasiya: tab keçidləri üçün `StatefulNavigationShell.goBranch`.
 class AdminShell extends StatelessWidget {
   const AdminShell({
     super.key,
@@ -79,23 +80,14 @@ class AdminShell extends StatelessWidget {
     Icons.person_rounded,
   ];
 
-  /// Dashboard kartları və alt menyu üçün — `go()` indexed shell-də tabı dəyişmir.
+  /// Dashboard kartları və alt menyu.
   static void goToTab(BuildContext context, int index) {
     assert(index >= 0 && index < _paths.length);
-    final shellWidget = AdminNavScope.shellOf(context);
-    final shellState = StatefulNavigationShell.maybeOf(context);
-    if (shellWidget != null) {
-      shellWidget.goBranch(
-        index,
-        initialLocation: index == shellWidget.currentIndex,
-      );
-    } else if (shellState != null) {
-      shellState.goBranch(
-        index,
-        initialLocation: index == shellState.currentIndex,
-      );
+    final shell = AdminNavScope.shellOf(context);
+    if (shell != null) {
+      shell.goBranch(index);
     } else {
-      GoRouter.of(context).go(_paths[index]);
+      appRouter.go(_paths[index]);
     }
   }
 
@@ -128,7 +120,7 @@ class AdminShell extends StatelessWidget {
                     child: Material(
                       color: Colors.transparent,
                       child: InkWell(
-                        onTap: () => goToTab(context, i),
+                        onTap: () => navigationShell.goBranch(i),
                         borderRadius:
                             BorderRadius.circular(AppTheme.radiusMd),
                         child: Padding(

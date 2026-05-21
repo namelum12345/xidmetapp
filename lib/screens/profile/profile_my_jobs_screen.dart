@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../router/app_router.dart' show appRouter;
+
 import '../../models/job_listing.dart';
 import '../../models/user_role.dart';
 import '../../router/app_routes.dart';
@@ -94,7 +96,7 @@ class _ProfileMyJobsScreenState extends State<ProfileMyJobsScreen>
         title: const Text('Elanlarım'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_rounded),
-          onPressed: () => context.pop(),
+          onPressed: () => appRouter.pop(),
         ),
         bottom: TabBar(
           controller: _tabs,
@@ -160,7 +162,7 @@ class _JobList extends StatelessWidget {
           color: Colors.transparent,
           child: InkWell(
             borderRadius: BorderRadius.circular(20),
-            onTap: () => context.push(AppRoutes.jobDetail(j.id), extra: viewerRole),
+            onTap: () => appRouter.push(AppRoutes.jobDetail(j.id), extra: viewerRole),
             child: AppCard(
               padding: const EdgeInsets.all(16),
               child: Column(

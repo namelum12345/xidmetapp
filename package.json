@@ -5,7 +5,10 @@
     "dev:web": "bash scripts/dev-web.sh",
     "emulators": "CI=true npx firebase emulators:start --only auth,firestore",
     "emulators:all": "CI=true npx firebase emulators:start --only auth,firestore,functions,storage",
-    "seed:emulator": "bash scripts/seed-emulator.sh"
+    "emulators:stop": "bash scripts/emulators-stop.sh",
+    "seed:emulator": "bash scripts/seed-emulator.sh",
+    "build:apk:phone": "bash scripts/build-apk-phone.sh",
+    "run:android:phone": "bash scripts/run-android-phone.sh"
   },
   "devDependencies": {
     "firebase-tools": "^14.22.0"

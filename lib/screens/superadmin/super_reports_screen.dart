@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../models/super_admin_models.dart';
@@ -39,28 +38,6 @@ class SuperReportsScreen extends StatelessWidget {
               final docs = snap.data?.docs ?? const [];
               return CustomScrollView(
                 slivers: [
-                  SliverPadding(
-                    padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-                    sliver: SliverToBoxAdapter(
-                      child: Row(
-                        children: [
-                          IconButton(
-                            onPressed: () => context.pop(),
-                            icon: const Icon(Icons.arrow_back_rounded),
-                            color: AppColors.textPrimary,
-                          ),
-                          Expanded(
-                            child: Text(
-                              'Şikayətlər',
-                              style: textTheme.titleLarge?.copyWith(
-                                fontWeight: FontWeight.w900,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
                   if (snap.connectionState == ConnectionState.waiting)
                     const SliverFillRemaining(
                       hasScrollBody: false,

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../services/super_admin_service.dart';
 import '../../theme/app_colors.dart';
@@ -29,16 +28,9 @@ class _SuperNotificationScreenState extends State<SuperNotificationScreen> {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
 
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded),
-          onPressed: () => context.pop(),
-        ),
-        title: const Text('Push bildirişi'),
-      ),
-      body: ListView(
+    return ColoredBox(
+      color: AppColors.background,
+      child: ListView(
         padding: const EdgeInsets.fromLTRB(20, 16, 20, 28),
         children: [
           AppCard(

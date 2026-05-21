@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../services/super_admin_service.dart';
 import '../../theme/app_colors.dart';
@@ -31,25 +30,8 @@ class _SuperGlobalBanScreenState extends State<SuperGlobalBanScreen> {
     return ColoredBox(
       color: AppColors.background,
       child: ListView(
-        padding: const EdgeInsets.fromLTRB(20, 8, 20, 28),
+        padding: const EdgeInsets.fromLTRB(20, 16, 20, 28),
         children: [
-          Row(
-            children: [
-              IconButton(
-                onPressed: () => context.pop(),
-                icon: const Icon(Icons.arrow_back_rounded),
-              ),
-              Expanded(
-                child: Text(
-                  'Qlobal blok',
-                  style: textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
           Text(
             'İstifadəçi və ya icraçı UID ilə blok (Firestore `users.banned` / `workers.disabled`).',
             style: textTheme.bodyMedium?.copyWith(

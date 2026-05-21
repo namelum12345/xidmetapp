@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../theme/app_colors.dart';
@@ -23,27 +22,6 @@ class SuperAuditLogScreen extends StatelessWidget {
               final docs = snap.data?.docs ?? const [];
               return CustomScrollView(
                 slivers: [
-                  SliverPadding(
-                    padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-                    sliver: SliverToBoxAdapter(
-                      child: Row(
-                        children: [
-                          IconButton(
-                            onPressed: () => context.pop(),
-                            icon: const Icon(Icons.arrow_back_rounded),
-                          ),
-                          Expanded(
-                            child: Text(
-                              'Audit log',
-                              style: textTheme.titleLarge?.copyWith(
-                                fontWeight: FontWeight.w900,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
                   if (snap.connectionState == ConnectionState.waiting)
                     const SliverFillRemaining(
                       hasScrollBody: false,

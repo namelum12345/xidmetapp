@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
+import '../../router/app_router.dart' show appRouter;
 import '../../router/app_routes.dart';
 import '../../services/auth_service.dart';
 import '../../shells/super_admin_shell.dart';
@@ -70,13 +70,13 @@ class SuperAdminDashboardScreen extends StatelessWidget {
                   query: _db.collection('users'),
                   icon: Icons.people_outline_rounded,
                   label: 'İstifadəçilər',
-                  onTap: () => context.go(AppRoutes.superManageUsers),
+                  onTap: () => appRouter.go(AppRoutes.superManageUsers),
                 ),
                 StreamSuperQueryStatCard(
                   query: _db.collection('workers'),
                   icon: Icons.engineering_outlined,
                   label: 'İcraçılar',
-                  onTap: () => context.go(AppRoutes.superManageWorkers),
+                  onTap: () => appRouter.go(AppRoutes.superManageWorkers),
                 ),
                 StreamSuperQueryStatCard(
                   query: _db.collection('users'),
@@ -90,13 +90,13 @@ class SuperAdminDashboardScreen extends StatelessWidget {
                   query: _db.collection('jobs'),
                   icon: Icons.work_outline_rounded,
                   label: 'Elanlar',
-                  onTap: () => context.go(AppRoutes.superManageJobs),
+                  onTap: () => appRouter.go(AppRoutes.superManageJobs),
                 ),
                 StreamSuperQueryStatCard(
                   query: _db.collection('chats'),
                   icon: Icons.chat_bubble_outline_rounded,
                   label: 'Söhbətlər',
-                  onTap: () => context.go(AppRoutes.superManageChats),
+                  onTap: () => appRouter.go(AppRoutes.superManageChats),
                 ),
                 StreamSuperQueryStatCard(
                   query: _db.collection('complaints'),
@@ -105,13 +105,13 @@ class SuperAdminDashboardScreen extends StatelessWidget {
                       .length,
                   icon: Icons.flag_outlined,
                   label: 'Şikayətlər',
-                  onTap: () => context.go(AppRoutes.superReports),
+                  onTap: () => appRouter.go(AppRoutes.superReports),
                 ),
                 StreamSuperQueryStatCard(
                   query: _db.collection('logs'),
                   icon: Icons.history_rounded,
                   label: 'Loglar',
-                  onTap: () => context.go(AppRoutes.superAudit),
+                  onTap: () => appRouter.go(AppRoutes.superAudit),
                 ),
               ]),
             ),
@@ -136,25 +136,25 @@ class SuperAdminDashboardScreen extends StatelessWidget {
                     icon: Icons.account_balance_wallet_outlined,
                     title: 'Monetizasiya',
                     subtitle: 'Komissiya və premium',
-                    onTap: () => context.go(AppRoutes.superMonetization),
+                    onTap: () => appRouter.go(AppRoutes.superMonetization),
                   ),
                   SettingTile(
                     icon: Icons.vpn_key_outlined,
                     title: 'İcazə şablonu',
                     subtitle: 'Defolt icazələr',
-                    onTap: () => context.go(AppRoutes.superPermissions),
+                    onTap: () => appRouter.go(AppRoutes.superPermissions),
                   ),
                   SettingTile(
                     icon: Icons.campaign_outlined,
                     title: 'Push bildiriş',
                     subtitle: 'Hamısı və ya icraçılar',
-                    onTap: () => context.go(AppRoutes.superNotifications),
+                    onTap: () => appRouter.go(AppRoutes.superNotifications),
                   ),
                   SettingTile(
                     icon: Icons.gavel_rounded,
                     title: 'Qlobal blok',
                     subtitle: 'İstifadəçi / icraçı ID',
-                    onTap: () => context.go(AppRoutes.superGlobalBan),
+                    onTap: () => appRouter.go(AppRoutes.superGlobalBan),
                   ),
                   const SizedBox(height: 28),
                   GradientPrimaryButton(
@@ -162,7 +162,7 @@ class SuperAdminDashboardScreen extends StatelessWidget {
                     onPressed: () async {
                       await AuthService.instance.signOut();
                       if (!context.mounted) return;
-                      context.go(AppRoutes.login);
+                      appRouter.go(AppRoutes.login);
                     },
                   ),
                   const SizedBox(height: 24),

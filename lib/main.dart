@@ -21,6 +21,11 @@ import 'services/notification_service.dart';
 /// [DefaultFirebaseOptions.usesPlaceholderFirebaseConfig] avtomatik qoşulur.
 const bool _useFirebaseEmulatorEnv =
     bool.fromEnvironment('USE_FIREBASE_EMULATOR', defaultValue: false);
+/// Fiziki telefonda emulyator PC-dədirsə, build zamanı `--dart-define`'lə
+/// kompüterin Wi‑Fi IP-si verilməlidir (məs. `scripts/build-apk-phone.sh`).
+/// `127.0.0.1` yalnız eyni qurğuda işləyir.
+/// **`10.0.2.2` yalnız Android Studio AVD emulyatorunda** (host = PC); real
+/// telefonda həmişə PC-nin LAN IP-si (məs. 192.168.x.x).
 const String _emulatorHost =
     String.fromEnvironment('FIREBASE_EMULATOR_HOST', defaultValue: '127.0.0.1');
 const int _firestorePort =

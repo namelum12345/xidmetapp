@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-
 import '../models/user_role.dart';
+import '../router/app_router.dart' show appRouter;
 import '../router/app_routes.dart';
 import '../services/chat_service.dart';
 import '../theme/app_colors.dart';
@@ -123,7 +122,8 @@ class MessagesListScreen extends StatelessWidget {
                           unreadCount: unread,
                           viewerRole: viewerRole,
                           onTap: () {
-                            context.push(
+                            // Root navigator — dərin Shell kontekstində `context.push` bəzən uğursuz olur.
+                            appRouter.push(
                               AppRoutes.chat(thread.id),
                               extra: viewerRole,
                             );
