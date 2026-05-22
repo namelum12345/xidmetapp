@@ -15,6 +15,9 @@ xidmet_v2/app/build/
 # Deploy secrets
 xidmet_v2/deploy/SECRETS.md
 
+# Java heap dumps
+*.hprof
+
 # IDE
 .idea/
 .vscode/
