@@ -18,25 +18,6 @@ class AuthService extends ChangeNotifier {
   Future<void> init() async {
     await ApiService.instance.init();
 
-    // TODO: REMOVE THIS – DEV MODE: force admin login
-    _user = UserModel(
-      id: 'dev-admin-id',
-      name: 'Admin',
-      surname: 'User',
-      email: 'admin@test.com',
-      phone: '+994501234567',
-      role: 'admin',
-      categories: [],
-      lat: 40.4093,
-      lng: 49.8671,
-      address: 'Bakı',
-      createdAt: DateTime.now(),
-    );
-    _loading = false;
-    notifyListeners();
-    return;
-    // TODO: END DEV MODE
-
     final prefs = await SharedPreferences.getInstance();
     final raw = prefs.getString('user_json');
     if (raw != null) {
